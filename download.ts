@@ -11,12 +11,16 @@ export const DownloadAllPieces = async (file_links: string[], res: Express.Respo
 
         while (!downloadDone) {
             try {
-                const blob = await fetch(link).then(response => response.blob())
+                let blob = await fetch(link).then(response => response.blob())
+                let buffer = Buffer.from(await blob.arrayBuffer())
 
-                const buffer = Buffer.from(await blob.arrayBuffer())
-
+                // release memory
+                blob = null
                 if (res.writable) {
                     res.write(buffer)
+
+                    // release memory
+                    buffer = null
                     downloadDone = true
                 } else {
                     console.error('Aborting download! Client stream is not writable anymore')
