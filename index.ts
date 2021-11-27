@@ -18,6 +18,11 @@ const error = (code, msg, res) => {
     res.end()
 }
 
+app.get('/ping', async (req, res) => {
+    res.statusCode = 200
+    res.end('pong')
+})
+
 app.get('/dl/:ptr', async (req, res) => {
     if (!req.params.ptr)
         return error(400, 'Missing file pointer', res)
