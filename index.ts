@@ -22,7 +22,7 @@ app.get('/dl/:ptr', async (req, res) => {
     if (!req.params.ptr)
         return error(400, 'Missing file pointer', res)
 
-    const ptr = Buffer.from(req.params.ptr, 'base64')
+    const ptr = ('x.' + req.params.ptr).split('').map(x => x === '.' ? '/' : x).reverse().join('')
     const link = 'https://cdn.discordapp.com/attachments/' + ptr
 
     // can't use response.json() directly (see following)
