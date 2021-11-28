@@ -18,9 +18,9 @@ const error = (code, msg, res) => {
     res.end()
 }
 
-app.get('/ping', async (req, res) => {
-    res.statusCode = 200
-    res.end('pong')
+app.get('/', async (req, res) => {
+    console.log('Ping')
+    res.sendStatus(200)
 })
 
 app.get('/dl/:ptr', async (req, res) => {
@@ -49,4 +49,11 @@ app.get('/dl/:ptr', async (req, res) => {
 
 app.listen(process.env.PORT || 8000, () => {
     console.log(`Listening on port ${process.env.PORT || 8000}`)
+
+    // check if is running on Glitch
+    if (process.env.PROJECT_DOMAIN) {
+        setInterval(() => {
+            fetch(`https://${process.env.PROJECT_DOMAIN}.glitch.me/`)
+        }, 280000)
+    }
 })
