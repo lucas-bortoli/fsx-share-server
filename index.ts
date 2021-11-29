@@ -26,32 +26,38 @@ app.get('/', async (req, res) => {
 })
 
 app.get('/:ptr', async (req, res) => {
-    if (!req.params.ptr)
-        return error(400, 'Missing file pointer', res)
-
     const html = await readFile('./index.html')
 
-    const ptr = ('x.' + req.params.ptr).split('').map(x => x === '.' ? '/' : x).reverse().join('')
-    const link = 'https://cdn.discordapp.com/attachments/' + ptr
+    try {
+        if (!req.params.ptr)
+            throw new Error('No link provided')
 
-    // can't use response.json() directly (see following)
-    const base64_entry = await fetch(link).then(r => r.text())
+        const ptr = ('x.' + req.params.ptr).split('').map(x => x === '.' ? '/' : x).reverse().join('')
+        const link = 'https://cdn.discordapp.com/attachments/' + ptr
 
-    // convert base64-encoded text to plain text
-    const asString = Buffer.from(base64_entry, 'base64').toString('utf-8')
+        // get entry
+        const entry = await fetch(link).then(r => r.text())
 
-    // parse entry
-    const fileEntry: IFile = JSON.parse(asString)
+        // parse entry
+        const fileEntry: IFile = JSON.parse(entry)
 
-    res.setHeader('Content-Type', 'text/html')
-    res.send(html +
-    `
-    <script>
-        try {
-            window.downloadInfo = ${JSON.stringify(fileEntry)}
-        } catch(z) {}
-    </script>
-    `)
+        // send index.html with file information
+        res.setHeader('Content-Type', 'text/html')
+        res.send(html +
+        `
+        <script>
+            try {
+                window.downloadInfo = ${JSON.stringify(fileEntry)}
+            } catch(z) {}
+        </script>
+        `)
+    } catch(ex) {
+        console.error(ex)
+
+        // send index.html without file information
+        res.setHeader('Content-Type', 'text/html')
+        res.send(html)
+    }
 })
 
 app.get('/:ptr/dl', async (req, res) => {
@@ -61,14 +67,11 @@ app.get('/:ptr/dl', async (req, res) => {
     const ptr = ('x.' + req.params.ptr).split('').map(x => x === '.' ? '/' : x).reverse().join('')
     const link = 'https://cdn.discordapp.com/attachments/' + ptr
 
-    // can't use response.json() directly (see following)
-    const base64_entry = await fetch(link).then(r => r.text())
-
-    // convert base64-encoded text to plain text
-    const asString = Buffer.from(base64_entry, 'base64').toString('utf-8')
+    // get entry
+    const entry = await fetch(link).then(r => r.text())
 
     // parse entry
-    const fileEntry: IFile = JSON.parse(asString)
+    const fileEntry: IFile = JSON.parse(entry)
 
     res.header('Content-Length', fileEntry.size.toString())
     res.attachment(fileEntry.name)
