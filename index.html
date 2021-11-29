@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            :root {
+                --text-color: #212121;
+                --border-color: #212121;
+            }
+
+            html {
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' version='1.1' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:svgjs='http://svgjs.com/svgjs' width='1280' height='720' preserveAspectRatio='none' viewBox='0 0 1280 720'%3e%3cg mask='url(%26quot%3b%23SvgjsMask1662%26quot%3b)' fill='none'%3e%3crect width='1280' height='720' x='0' y='0' fill='url(%23SvgjsLinearGradient1663)'%3e%3c/rect%3e%3cpath d='M1435.87 578.55C1320.39 567.88 1300.54 371.71 1046.39 326.55 792.25 281.39 795.96-60.75 656.92-99.19' stroke='rgba(0%2c 0%2c 0%2c 0.14)' stroke-width='2'%3e%3c/path%3e%3cpath d='M1389.62 241.79C1210.1 247.53 993.26 528.73 728.32 522.59 463.38 516.45 548.4-27.64 397.67-132.04' stroke='rgba(0%2c 0%2c 0%2c 0.14)' stroke-width='2'%3e%3c/path%3e%3cpath d='M1284.57 107.16C1176.75 113.22 1097.92 309.69 902.54 308.76 707.16 307.83 649.8-29.32 520.51-57.18' stroke='rgba(0%2c 0%2c 0%2c 0.14)' stroke-width='2'%3e%3c/path%3e%3cpath d='M1518.67 393.27C1404.54 385.87 1356.69 192.44 1119.32 170.07 881.94 147.7 843.52-112.12 719.96-127.93' stroke='rgba(0%2c 0%2c 0%2c 0.14)' stroke-width='2'%3e%3c/path%3e%3cpath d='M1486.44 266.34C1388.77 265.73 1296.34 176.34 1106.24 176.34 916.14 176.34 921.91 267.74 726.04 266.34 530.17 264.94 462.82 1.95 345.84-12.45' stroke='rgba(0%2c 0%2c 0%2c 0.14)' stroke-width='2'%3e%3c/path%3e%3c/g%3e%3cdefs%3e%3cmask id='SvgjsMask1662'%3e%3crect width='1280' height='720' fill='white'%3e%3c/rect%3e%3c/mask%3e%3clinearGradient x1='10.94%25' y1='119.44%25' x2='89.06%25' y2='-19.44%25' gradientUnits='userSpaceOnUse' id='SvgjsLinearGradient1663'%3e%3cstop stop-color='rgba(255%2c 255%2c 255%2c 1)' offset='0.65'%3e%3c/stop%3e%3cstop stop-color='rgba(243%2c 243%2c 243%2c 1)' offset='1'%3e%3c/stop%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e");
+                background-size: cover;
+                background-repeat: no-repeat;
+                font-family: sans-serif;
+                color: var(--text-color);
+            }
+
+            #app {
+                display: none;
+                background-image: none;
+                max-width: 720px;
+                margin: 60px 15vw 60px 11vw;
+            }
+
+            #app.shown {
+                display: block;
+            }
+
+            button {
+                font-size: 18px;
+                padding: 12px 18px;
+                margin-right: 12px;
+                background: #EEEEEE;
+                border: 4px solid var(--border-color);
+                box-shadow: 6px 6px 0 0 var(--border-color);
+                cursor: pointer;
+                border-radius: 12px;
+                user-select: none;
+            }
+
+            button:active {
+                transform: translate(6px, 6px);
+                box-shadow: 0px 0px 0 0 var(--border-color);
+                background: linear-gradient(to top, #FFFFFF 0%, #EEEEEE 100%);
+            }
+
+            #fileDescription {
+                padding: 6px 12px;
+                border-left: 3px solid var(--text-color);
+                font-style: italic;
+                font-size: 12px;
+            }
+
+            #fileDescription:empty {
+                display: none;
+            }
+
+            .page#err404 {
+                display: none;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 100;
+            }
+
+            .page#err404.shown {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            #err404 h1 {
+                font-size: 15vw;
+            }
+        </style>
+        <title>meus #arquivos</title>
+    </head>
+    <body>
+        <div class="page" id="app">
+            <h1>meus #arquivos</h1>
+            <p>Nome: <span id="fileName"></span></p>
+            <p>Tamanho: <span id="fileSize"></span></p>
+            <p>Enviado <span id="shareDate"></span></p>
+            <p id="fileDescription"></p>
+            <br><br>
+            <button id="dl">baixar</button><button id="direct">copiar link direto</button>
+        </div>
+
+        <div class="page" id="err404">
+            <h1>404</h1>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/locale/pt-br.js"></script>
+        <script>
+            function fileSize(a,b,c,d,e){
+                return (b=Math,c=b.log,d=1e3,e=c(a)/c(d)|0,a/b.pow(d,e)).toFixed(2)
+                    +' '+(e?'kMGTPEZY'[--e]+'B':'Bytes')
+            }
+
+            const el = selector => document.querySelector(selector)
+
+            moment.locale('br')
+
+            // Wait until document has been fully parsed
+            document.onreadystatechange = e => {
+                if (document.readyState !== 'interactive') return
+
+                // show 404 page 
+                if (!window.downloadInfo) {
+                    el('#app').classList.remove('shown')
+                    el('#err404').classList.add('shown')
+                    return
+                }
+
+                el('#app').classList.add('shown')
+
+                // Populate elements with downloadInfo sent from server
+                el('#fileName').innerText = downloadInfo.name
+                el('#fileSize').innerText = fileSize(downloadInfo.size)
+                el('#shareDate').innerText = moment(downloadInfo.cdate).fromNow()
+                el('#fileDescription').innerText = downloadInfo.description || ''
+
+                el('#dl').addEventListener('click', () => {
+                    // Redirect to download URL
+                    location.href = location.href + '/dl'
+                })
+
+                el('#direct').addEventListener('click', () => {
+                    navigator.clipboard.writeText(location.href + '/dl')
+                })
+            }
+        </script>
+    </body>
+    
+    <!--
+    <script>
+        window.downloadInfo = {
+            name: "sample.mp4",
+            size: 32322,
+            cdate: 1638196405000,
+            description: 'sample description'
+        }
+    </script>
+    -->
+    
+</html>
