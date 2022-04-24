@@ -1,3 +1,4 @@
+import Filesystem from '@lucas-bortoli/libdiscord-fs'
 import * as Express from 'express'
 import fetch from 'node-fetch'
 import { Writable } from 'stream'
@@ -37,4 +38,8 @@ export const DownloadAllPieces = async (file_links: string[], res: Express.Respo
     stream.end()
 
     return stream
+}
+
+export const createArchive = (fs: Filesystem) => {
+    
 }

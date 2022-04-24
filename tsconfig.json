@@ -5,6 +5,7 @@
         "module": "ES6",
         "moduleResolution": "Node",
         "esModuleInterop": true,
-        "target": "ES2018"
-    }
+        "target": "ES2021"
+    },
+    "exclude": ["public/", "dist/"]
 }

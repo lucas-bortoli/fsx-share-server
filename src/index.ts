@@ -1,8 +1,9 @@
 import express from 'express'
 import fetch from 'node-fetch'
 import { readFile } from 'fs/promises'
-import { IFile } from './types'
-import { DownloadAllPieces } from './download.js'
+import * as Utils from './utils.js'
+import { download, fetchEntryData } from './fs.js'
+import path from 'path'
 
 const app = express()
 
@@ -25,21 +26,21 @@ app.get('/', async (req, res) => {
     res.sendStatus(200)
 })
 
+app.use('/css/', express.static(path.resolve('./public/css/')))
+app.use('/js/', express.static(path.resolve('./public/js/')))
+app.use('/assets/', express.static(path.resolve('./public/assets/')))
+
 app.get('/:ptr', async (req, res) => {
-    const html = await readFile('./index.html')
+    const html = await readFile('./public/index.html')
 
     try {
         if (!req.params.ptr)
             throw new Error('No link provided')
 
-        const ptr = ('x.' + req.params.ptr).split('').map(x => x === '.' ? '/' : x).reverse().join('')
-        const link = 'https://cdn.discordapp.com/attachments/' + ptr
+        const entryAttachmentLink = Utils.DecodeURLPointer(req.params.ptr)
 
         // get entry
-        const entry = await fetch(link).then(r => r.text())
-
-        // parse entry
-        const fileEntry: IFile = JSON.parse(entry)
+        const entry = await fetchEntryData(entryAttachmentLink)
 
         // send index.html with file information
         res.setHeader('Content-Type', 'text/html')
@@ -47,7 +48,7 @@ app.get('/:ptr', async (req, res) => {
         `
         <script>
             try {
-                window.downloadInfo = ${JSON.stringify(fileEntry)}
+                window.downloadInfo = ${JSON.stringify(entry)}
             } catch(z) {}
         </script>
         `)
@@ -64,21 +65,7 @@ app.get('/:ptr/dl', async (req, res) => {
     if (!req.params.ptr)
         return error(400, 'Missing file pointer', res)
 
-    const ptr = ('x.' + req.params.ptr).split('').map(x => x === '.' ? '/' : x).reverse().join('')
-    const link = 'https://cdn.discordapp.com/attachments/' + ptr
-
-    // get entry
-    const entry = await fetch(link).then(r => r.text())
-
-    // parse entry
-    const fileEntry: IFile = JSON.parse(entry)
-
-    res.header('Content-Length', fileEntry.size.toString())
-    res.attachment(fileEntry.name)
-
-    DownloadAllPieces(
-        fileEntry.pieces.map(piece => 'https://cdn.discordapp.com/attachments/' + piece),
-        res)
+    await download(req, res)
 })
 
 app.listen(process.env.PORT || 8000, () => {
