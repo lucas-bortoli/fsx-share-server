@@ -44,9 +44,11 @@ const download = async (req: Express.Request, res: Express.Response) => {
             fsx.setEntry(`/${entry.name}`, entry)
         }
 
+        let zipFileName = fetchedEntry.metadata?.name || `Unnamed_${Date.now().toString(36)}.zip`
+
         // Set client headers (no Content-Length; we don't know the archive size ahead of time)
         res.header('Content-Type', 'application/octet-stream')
-        res.header('Content-Disposition', `attachment; filename=${fetchedEntry.metadata?.name || `Unnamed_${Date.now().toString(36)}.zip`}`)
+        res.header('Content-Disposition', `attachment; filename=${zipFileName.endsWith('.zip' ? zipFileName : zipFileName + '.zip')}`)
 
         // Create a zip archive   
         const zip = archiver('zip')
