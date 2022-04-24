@@ -48,7 +48,7 @@ const download = async (req: Express.Request, res: Express.Response) => {
 
         // Set client headers (no Content-Length; we don't know the archive size ahead of time)
         res.header('Content-Type', 'application/octet-stream')
-        res.header('Content-Disposition', `attachment; filename=${zipFileName.endsWith('.zip' ? zipFileName : zipFileName + '.zip')}`)
+        res.header('Content-Disposition', `attachment; filename=${zipFileName.endsWith('.zip') ? zipFileName : zipFileName + '.zip'}`)
 
         // Create a zip archive   
         const zip = archiver('zip')
