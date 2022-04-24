@@ -65,7 +65,11 @@ app.get('/:ptr/dl', async (req, res) => {
     if (!req.params.ptr)
         return error(400, 'Missing file pointer', res)
 
-    await download(req, res)
+    try {
+        await download(req, res)
+    } catch(ex) {
+        console.error('Download error ' + req.params.ptr, ex)
+    }
 })
 
 app.listen(process.env.PORT || 8000, () => {
