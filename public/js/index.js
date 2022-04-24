@@ -90,8 +90,12 @@ document.onreadystatechange = e => {
             }, `/${rootEntry.name}`)
         } else {
             createTreeViewNode(0, rootEntry.name, false)
+            fileSizeSum += rootEntry.size
         }
     }
+
+    if (downloadInfo.rootItems.length === 1)
+        el('#fileName').innerText = downloadInfo.rootItems[0].name
 
     // Update file size label text
     el('#fileSize').innerText = fileSize(fileSizeSum)
